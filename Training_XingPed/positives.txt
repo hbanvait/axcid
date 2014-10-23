@@ -1,0 +1,13 @@
+./positive_images/Capture 9 _Sec_1.001001.jpg
+./positive_images/Capture 5 _Sec_6.239573.jpg
+./positive_images/Capture 5 _Sec_6.172840.jpg
+./positive_images/Capture 9 _Sec_1.167835.jpg
+./positive_images/Capture 9 _Sec_1.134468.jpg
+./positive_images/Capture 5 _Sec_6.206206.jpg
+./positive_images/Capture 5 _Sec_6.940274.jpg
+./positive_images/Capture 9 _Sec_1.034368.jpg
+./positive_images/Capture 5 _Sec_6.306306.jpg
+./positive_images/Capture 5 _Sec_6.039373.jpg
+./positive_images/Capture 5 _Sec_6.106106.jpg
+./positive_images/Capture 5 _Sec_6.072739.jpg
+./positive_images/Capture 5 _Sec_6.373040.jpg

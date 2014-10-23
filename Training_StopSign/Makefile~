@@ -1,0 +1,101 @@
+#
+# Copyright (c) 2012-2014, NVIDIA CORPORATION.  All rights reserved.
+#
+# NVIDIA Corporation and its licensors retain all intellectual property
+# and proprietary rights in and to this software, related documentation
+# and any modifications thereto.  Any use, reproduction, disclosure or
+# distribution of this software and related documentation without an express
+# license agreement from NVIDIA Corporation is strictly prohibited.
+#
+
+# OS info
+OSUPPER := $(shell uname -s 2>/dev/null | tr "[:lower:]" "[:upper:]")
+OSLOWER := $(shell uname -s 2>/dev/null | tr "[:upper:]" "[:lower:]")
+
+OS_SIZE := $(shell uname -m | sed -e "s/i.86/32/" -e "s/x86_64/64/" -e "s/armv7l/32/")
+OS_ARCH := $(shell uname -m | sed -e "s/i386/i686/")
+
+# Take command line flags that override any of these settings
+ifeq ($(i386),1)
+	OS_SIZE := 32
+	OS_ARCH := i686
+endif
+
+ifeq ($(x86_64),1)
+	OS_SIZE := 64
+	OS_ARCH := x86_64
+endif
+
+ifeq ($(ARMv7),1)
+	OS_SIZE := 32
+	OS_ARCH := armv7l
+endif
+
+# Common binaries
+GCC     ?= g++
+
+# Internal flags
+CCFLAGS     :=
+LDFLAGS     :=
+
+# Debug build flags
+ifeq ($(dbg),1)
+	CCFLAGS += -g
+	TARGET := debug
+else
+        #CCFLAGS += -g
+	TARGET := release
+endif
+
+CUDA_CFLAGS := $(shell pkg-config --cflags cudart-6.0 cublas-6.0 cufft-6.0 nppc-6.0 nppi-6.0 npps-6.0)
+CUDA_LIBS := $(shell pkg-config --libs cudart-6.0 cublas-6.0 cufft-6.0 nppc-6.0 nppi-6.0 npps-6.0)
+
+OPENCV_CFLAGS := $(shell pkg-config --cflags opencv)
+OPENCV_LIBS := $(shell pkg-config --libs opencv)
+
+#VISION_WORKS_CFLAGS := $(shell pkg-config --cflags visionworks )
+#VISION_WORKS_LIBS := $(shell pkg-config --libs visionworks )
+
+INCLUDES :=
+INCLUDES += $(CUDA_CFLAGS)
+INCLUDES += $(OPENCV_CFLAGS)
+#INCLUDES += $(VISION_WORKS_CFLAGS)
+INCLUDES += -I utility
+LIBRARIES :=
+LIBRARIES += $(CUDA_LIBS)
+LIBRARIES += $(OPENCV_LIBS)
+#LIBRARIES += $(VISION_WORKS_LIBS)
+
+# add CUDA to runtime path
+CUDA_LIB_PATH := $(subst "-L","",$(shell pkg-config --libs-only-L cudart-6.0))
+LDFLAGS += -Wl,-rpath=$(CUDA_LIB_PATH)
+
+CPP_FILES := $(wildcard *.cpp)
+OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
+$(info $$CCFLAGS is [${CCFLAGS}])
+################################################################################
+
+# Target rules
+all: build
+
+build: main
+
+obj/utility.o: utility/utility.cpp
+	mkdir -p obj
+	$(GCC) $(INCLUDES) $(CCFLAGS) -o $@ -c $<
+
+obj/%.o: %.cpp
+	mkdir -p obj
+	$(GCC) $(INCLUDES) $(CCFLAGS) -o $@ -c $<
+
+main: obj/utility.o $(OBJ_FILES)
+	$(GCC) $(LDFLAGS) -o $@ $^ $(LIBRARIES)
+	mkdir -p ../../bin/$(OS_ARCH)/$(OSLOWER)/$(TARGET)$(if $(abi),/$(abi))
+	cp $@ ../../bin/$(OS_ARCH)/$(OSLOWER)/$(TARGET)$(if $(abi),/$(abi))
+
+run: build
+	./main
+
+clean:
+	rm -f obj/utility.o $(OBJ_FILES) main
+	rm -rf ../../bin/$(OS_ARCH)/$(OSLOWER)/$(TARGET)$(if $(abi),/$(abi))/main

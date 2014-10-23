@@ -1,0 +1,7 @@
+./opencv_createsamples -info info.txt -bg bg.txt -w 48 -h 48 -vec output.vec
+./opencv_traincascade -data data/ -vec output.vec -bg bg.txt -w 48 -h 48 -numPos 224 -numStages 3
+
+
+./opencv_createsamples -info info.txt -bg bg.txt -w 48 -h 48 -vec output.vec
+./opencv_traincascade -data data/ -vec output.vec -bg bg.txt -w 48 -h 48 -numPos 224 -numStages 3
+
